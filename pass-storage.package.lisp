@@ -3,5 +3,4 @@
 (in-package :common-lisp-user)
 
 (defpackage pass-storage
-  (:use :common-lisp :iterate :anaphora))
-
+  (:use :gtk :gdk :gobject :glib :common-lisp :iterate :anaphora))

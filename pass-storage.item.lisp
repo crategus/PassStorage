@@ -34,9 +34,9 @@
   `(progn
      (defclass ,name (entry)
        (,@(iter (for (slot title type) in slots)
-		(collect `(,slot :initform "")))
-	(title :allocation :class :initform ,title)
-	(icon :allocation :class :initform ,icon))
+        (collect `(,slot :initform "")))
+    (title :allocation :class :initform ,title)
+    (icon :allocation :class :initform ,icon))
        (:metaclass gobject:gobject-class)
        (:g-type-name . ,g-name))
 
@@ -44,61 +44,61 @@
 
      (defmethod entry-slots ((entry ,name))
        (append (call-next-method entry)
-	       (quote
-		,(iter (for (slot title type) in slots)
-		       (collect `(,slot ,title ,type))))))
+           (quote
+        ,(iter (for (slot title type) in slots)
+               (collect `(,slot ,title ,type))))))
 
      (defmethod load-entry ((xml-name (eql ,(intern xml-name 'keyword))) xml-node)
        (let ((entry (make-instance (quote ,name)
-				   :name (entry-node-get-value xml-node :|name|)
-				   :description (entry-node-get-value xml-node :|description|))))
-	 ,@(iter (for (slot title type field-name) in slots)
-		 (collect `(setf (slot-value entry (quote ,slot))
-				 (entry-node-get-value xml-node :|field| ,field-name))))
-	 entry))
+                   :name (entry-node-get-value xml-node :|name|)
+                   :description (entry-node-get-value xml-node :|description|))))
+     ,@(iter (for (slot title type field-name) in slots)
+         (collect `(setf (slot-value entry (quote ,slot))
+                 (entry-node-get-value xml-node :|field| ,field-name))))
+     entry))
 
      (defmethod save-entry ((entry ,name))
        (list
-	(list :|entry| :|type| ,xml-name)
-	(list :|name| (slot-value entry 'name))
-	(list :|description| (slot-value entry 'description))
-	,@(iter (for (slot title type field-name) in slots)
-		(collect
-		 `(list (list :|field| :|id| ,field-name) (slot-value entry ',slot))))))
+    (list :|entry| :|type| ,xml-name)
+    (list :|name| (slot-value entry 'name))
+    (list :|description| (slot-value entry 'description))
+    ,@(iter (for (slot title type field-name) in slots)
+        (collect
+         `(list (list :|field| :|id| ,field-name) (slot-value entry ',slot))))))
 
      (defmethod entry-has-text ((entry ,name) text &key (look-at-secrets t))
        (or
-	(search text (entry-name entry) :test #'char-equal)
-	(search text (entry-description entry) :test #'char-equal)
-	,@(iter (for (slot title type field-name) in slots)
-		(collect
-		 (if (or (eql type :password) (eql type :secret))
-		     `(when look-at-secrets
-			(search text (slot-value entry (quote ,slot)) :test #'char-equal))
-		     `(search text (slot-value entry (quote ,slot)) :test #'char-equal))))))
+    (search text (entry-name entry) :test #'char-equal)
+    (search text (entry-description entry) :test #'char-equal)
+    ,@(iter (for (slot title type field-name) in slots)
+        (collect
+         (if (or (eql type :password) (eql type :secret))
+             `(when look-at-secrets
+            (search text (slot-value entry (quote ,slot)) :test #'char-equal))
+             `(search text (slot-value entry (quote ,slot)) :test #'char-equal))))))
 
      (defmethod entry-to-markup ((entry ,name) &key (show-secrets t))
        (with-output-to-string (str)
-	 ,@(iter (for (slot title type field-name) in slots)
-		 (unless (or (eq slot 'name)
-			     (eq slot 'description))
-		   (collect
-		    `(let ((safe-title ,(markup-escape-text title))
-			   (safe-text (markup-escape-text (slot-value entry ',slot))))
-		       ,(cond
-			 ((eq slot 'url)
-			  `(format str "<b>~A</b>: <a href='~A'>~A</a>~%" safe-title safe-text safe-text))
-			 ((or (eq type :password) (eq type :secret))
-			  `(when show-secrets
-			     (format str "<b>~A</b>: ~A~%" safe-title safe-text)))
-			 (t
-			  `(format str "<b>~A</b>: ~A~%" safe-title safe-text)))))))))
+     ,@(iter (for (slot title type field-name) in slots)
+         (unless (or (eq slot 'name)
+                 (eq slot 'description))
+           (collect
+            `(let ((safe-title ,(markup-escape-text title))
+               (safe-text (markup-escape-text (slot-value entry ',slot))))
+               ,(cond
+             ((eq slot 'url)
+              `(format str "<b>~A</b>: <a href='~A'>~A</a>~%" safe-title safe-text safe-text))
+             ((or (eq type :password) (eq type :secret))
+              `(when show-secrets
+                 (format str "<b>~A</b>: ~A~%" safe-title safe-text)))
+             (t
+              `(format str "<b>~A</b>: ~A~%" safe-title safe-text)))))))))
 
      (defmethod entry-username ((entry ,name))
        (values
-	,@(iter (for (slot title type field-name) in slots)
-		(when (eq type :name)
-		  (collect `(slot-value entry ',slot))))))))
+    ,@(iter (for (slot title type field-name) in slots)
+        (when (eq type :name)
+          (collect `(slot-value entry ',slot))))))))
 
 (defgeneric entry-get-name (entry))
 (defgeneric entry-get-password (entry))
@@ -246,7 +246,9 @@
 ;;
 
 (defgeneric is-group (o))
+
 (defmethod is-group ((o entry-group)) t)
+
 (defmethod is-group (o) nil)
 
 (defun entry-title (o)
@@ -257,78 +259,78 @@
 
 (defun edit-entry (entry parent-window title &optional names)
   (edit-object entry
-	       parent-window
-	       (concatenate 'string title " " (entry-title entry))
-	       (entry-icon entry)
-	       (entry-slots entry)
-	       names))
+           parent-window
+           (concatenate 'string title " " (entry-title entry))
+           (entry-icon entry)
+           (entry-slots entry)
+           names))
 
 (defun get-slots (class)
   (iter (for slot in (closer-mop:class-slots class))
-	(when (eq :instance (closer-mop:slot-definition-allocation slot))
-	  (let ((slot-name (closer-mop:slot-definition-name slot)))
-	    (when (eql (find-package 'pass-storage)
-		       (symbol-package slot-name))
-	      (collect slot-name))))))
+    (when (eq :instance (closer-mop:slot-definition-allocation slot))
+      (let ((slot-name (closer-mop:slot-definition-name slot)))
+        (when (eql (find-package 'pass-storage)
+               (symbol-package slot-name))
+          (collect slot-name))))))
 
 (defun copy-entry (entry new-class)
   (flet ((find-slot-by-name (class slot-name)
-	   (iter (for slot in (get-slots class))
-		 (when (eql slot-name slot)
-		   (return slot)))))
+       (iter (for slot in (get-slots class))
+         (when (eql slot-name slot)
+           (return slot)))))
 
     (let ((new-entry (make-instance new-class)))
 
       (iter (for src-slot in (get-slots (class-of entry)))
 
-	    (let ((dst-slot (find-slot-by-name (class-of new-entry) src-slot)))
-	      (when dst-slot
-		(setf (slot-value new-entry dst-slot)
-		      (slot-value entry src-slot)))))
+        (let ((dst-slot (find-slot-by-name (class-of new-entry) src-slot)))
+          (when dst-slot
+        (setf (slot-value new-entry dst-slot)
+              (slot-value entry src-slot)))))
 
       (iter (for src-slot in (get-slots (class-of entry)))
-	    (unless (or (find-slot-by-name (class-of new-entry) src-slot)
-			(string= (slot-value entry src-slot) ""))
-	      (setf (entry-description new-entry)
-		    (format nil "~A~%~A: ~A~%" (entry-description new-entry) src-slot (slot-value entry src-slot)))))
+        (unless (or (find-slot-by-name (class-of new-entry) src-slot)
+            (string= (slot-value entry src-slot) ""))
+          (setf (entry-description new-entry)
+            (format nil "~A~%~A: ~A~%" (entry-description new-entry) src-slot (slot-value entry src-slot)))))
 
       new-entry)))
 
 (defun join-entry (entry path another-entry)
   (flet ((find-slot-by-name (class slot-name)
-	   (iter (for slot in (get-slots class))
-		 (when (eql slot-name slot)
-		   (return slot)))))
+       (iter (for slot in (get-slots class))
+         (when (eql slot-name slot)
+           (return slot)))))
 
     (let ((src-data
-	   (iter (for src-slot in (get-slots (class-of another-entry)))
-		 (unless (or (eq src-slot 'name) (eq src-slot 'description))
-		   (for src-value = (slot-value another-entry src-slot))
-		   (when (plusp (length src-value))
-		     (collecting (list src-slot src-value)))))))
+       (iter (for src-slot in (get-slots (class-of another-entry)))
+         (unless (or (eq src-slot 'name) (eq src-slot 'description))
+           (for src-value = (slot-value another-entry src-slot))
+           (when (plusp (length src-value))
+             (collecting (list src-slot src-value)))))))
 
       (setf src-data
-	    (iter (for (src-slot src-value) in src-data)
-		  (for dst-slot = (find-slot-by-name (class-of entry) src-slot))
-		  (cond
-		    ((not dst-slot)
-		     (collecting (list src-slot src-value)))
-		    ((zerop (length (slot-value entry dst-slot)))
-		     (setf (slot-value entry dst-slot) src-value))
-		    ((string= (slot-value entry dst-slot) src-value)
-		     nil)
-		    (t
-		     (collecting (list src-slot src-value))))))
+        (iter (for (src-slot src-value) in src-data)
+          (for dst-slot = (find-slot-by-name (class-of entry) src-slot))
+          (cond
+            ((not dst-slot)
+             (collecting (list src-slot src-value)))
+            ((zerop (length (slot-value entry dst-slot)))
+             (setf (slot-value entry dst-slot) src-value))
+            ((string= (slot-value entry dst-slot) src-value)
+             nil)
+            (t
+             (collecting (list src-slot src-value))))))
 
       (let ((desc (entry-description another-entry)))
-	(when (plusp (length desc))
-	  (push (list 'description desc) src-data)))
+    (when (plusp (length desc))
+      (push (list 'description desc) src-data)))
 
       (when src-data
-	(setf (entry-description entry)
-	      (format nil "~A~%~%~{~A / ~}~A~%----------~%~:{~A: ~A~%~}"
-		      (entry-description entry)
-		      path
-		      (entry-name another-entry)
-		      src-data))))))
+    (setf (entry-description entry)
+          (format nil "~A~%~%~{~A / ~}~A~%----------~%~:{~A: ~A~%~}"
+              (entry-description entry)
+              path
+              (entry-name another-entry)
+              src-data))))))
 

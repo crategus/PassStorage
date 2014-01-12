@@ -13,23 +13,23 @@
   :author "Andrey Kutejko <andy128k@gmail.com>"
   :licence "LGPL"
   :depends-on (:cffi
-	       :trivial-garbage
-	       :cl-gtk2-gtk
-	       :babel
-	       :ironclad
-	       :cl-z
-	       :s-xml
-	       :cl-binary-location
-	       :cl-fad
-	       :anaphora)
+               :trivial-garbage
+               :cl-cffi-gtk
+               :babel
+               :ironclad
+               :cl-z
+               :s-xml
+               :cl-binary-location
+               :cl-fad
+               :anaphora)
   :serial t
   :components ((:file "pass-storage.package")
+               (:file "pass-storage.config")
                (:file "pass-storage.password")
                (:file "pass-storage.utils")
                (:file "pass-storage.xml")
                (:file "pass-storage.item")
                (:file "pass-storage.load")
-               (:file "pass-storage.config")
                (:file "pass-storage.version")
                (:file "pass-storage.entropy")
                (:file "pass-storage.main")))
