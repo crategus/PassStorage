@@ -1,17 +1,17 @@
 (in-package :pass-storage)
 
-(defun ask (parent-window message)
-  (let ((dlg (make-instance 'gtk-message-dialog
-                            :text message
-                            :buttons :yes-no
-                            :title "PassStorage"
-                            :message-type :question
-                            :window-position :center-on-parent
-                            :transient-for parent-window
-                            :use-markup nil)))
-    (prog1
-        (eql (gtk-dialog-run dlg) :yes)
-      (gtk-widget-hide dlg))))
+(defun ask-yes-no (parent message)
+  (let ((dialog (make-instance 'gtk-message-dialog
+                               :text message
+                               :buttons :yes-no
+                               :title "PassStorage"
+                               :message-type :question
+                               :window-position :center-on-parent
+                               :transient-for parent
+                               :use-markup nil)))
+    (let ((response (gtk-dialog-run dialog)))
+      (gtk-widget-destroy dialog)
+      (eql response :yes))))
 
 (defun ask-save (parent message)
   (let ((dialog (make-instance 'gtk-message-dialog
@@ -19,7 +19,6 @@
                                :title "PassStorage"
                                :message-type :warning
                                :transient-for parent)))
-    (format t "GTK-MAIN-LEVEL is ~A~%" (gtk-main-level))
     (gtk-dialog-add-button dialog "gtk-discard" :reject)
     (gtk-dialog-add-button dialog "gtk-cancel" :cancel)
     (gtk-dialog-add-button dialog "gtk-save" :ok)
@@ -27,41 +26,41 @@
       (gtk-widget-destroy dialog)
       response)))
 
-(defun say-error (parent-window message)
-  (let ((dlg (make-instance 'gtk-message-dialog
-                            :text message
-                            :buttons :ok
-                            :title "PassStorage"
-                            :message-type :error
-                            :window-position :center-on-parent
-                            :transient-for parent-window
-                            :use-markup nil)))
-    (gtk-dialog-run dlg)
-    (gtk-widget-hide dlg)))
+(defun say-error (parent message)
+  (let ((dialog (make-instance 'gtk-message-dialog
+                               :text message
+                               :buttons :ok
+                               :title "PassStorage"
+                               :message-type :error
+                               :window-position :center-on-parent
+                               :transient-for parent
+                               :use-markup nil)))
+    (gtk-dialog-run dialog)
+    (gtk-widget-destroy dialog)))
 
-(defun say-warning (parent-window message)
-  (let ((dlg (make-instance 'gtk-message-dialog
-                            :text message
-                            :buttons :ok
-                            :title "PassStorage"
-                            :message-type :warning
-                            :window-position :center-on-parent
-                            :transient-for parent-window
-                            :use-markup nil)))
-    (gtk-dialog-run dlg)
-    (gtk-widget-hide dlg)))
+(defun say-warning (parent message)
+  (let ((dialog (make-instance 'gtk-message-dialog
+                               :text message
+                               :buttons :ok
+                               :title "PassStorage"
+                               :message-type :warning
+                               :window-position :center-on-parent
+                               :transient-for parent
+                               :use-markup nil)))
+    (gtk-dialog-run dialog)
+    (gtk-widget-destroy dialog)))
 
-(defun say-info (parent-window message)
-  (let ((dlg (make-instance 'gtk-message-dialog
-                            :text message
-                            :buttons :ok
-                            :title "PassStorage"
-                            :message-type :info
-                            :window-position :center-on-parent
-                            :transient-for parent-window
-                            :use-markup nil)))
-    (gtk-dialog-run dlg)
-    (gtk-widget-hide dlg)))
+(defun say-info (parent message)
+  (let ((dialog (make-instance 'gtk-message-dialog
+                               :text message
+                               :buttons :ok
+                               :title "PassStorage"
+                               :message-type :info
+                               :window-position :center-on-parent
+                               :transient-for parent
+                               :use-markup nil)))
+    (gtk-dialog-run dialog)
+    (gtk-widget-destroy dialog)))
 
 (defun make-std-dialog (parent-window title stock-icon content)
   (let ((dlg (make-instance 'gtk-dialog
@@ -72,7 +71,7 @@
                             :title title
                             :has-separator nil
                             :type-hint :dialog
-                            :skip-taskbar_hint t
+                            :skip-taskbar-hint t
                             :skip-pager-hint t
                             :gravity :center
                             :transient-for parent-window)))
@@ -166,7 +165,7 @@
                                        (declare (ignore event))
                                        (when (eq pos :secondary)
                                          (when (or (string= "" (gtk-entry-text entry))
-                                                   (ask (gtk-widget-get-toplevel entry)
+                                                   (ask-yes-no (gtk-widget-get-toplevel entry)
                                                         "Do you want to overwrite current password?"))
                                            (setf (gtk-entry-text entry) (generate-password))))))
                                   (gtk-table-attach table

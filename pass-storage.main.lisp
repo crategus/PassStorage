@@ -204,8 +204,8 @@
 (defun cb-del-entry (app)
   (let ((iter (get-selected-iter app)))
     (when (and iter
-               (ask (app-main-window app)
-                    "Do you really want to delete selected item?"))
+               (ask-yes-no (app-main-window app)
+                           "Do you really want to delete selected item?"))
       (let* ((data (app-data app)))
         (gtk-tree-store-remove data iter)
         (listview-cursor-changed app)
@@ -236,11 +236,11 @@
       (say-info (app-main-window app)
                 "Nothing to merge. Select few items and try again.")
       (return-from cb-merge))
-    (unless (ask (app-main-window app)
-                 (with-output-to-string (str)
-                   (format str "Do you want to merge following items?~%")
-                   (iter (for (entry path) in checked)
-                         (format str "~%~{~A / ~}~A" path (entry-name entry)))))
+    (unless (ask-yes-no (app-main-window app)
+                        (with-output-to-string (str)
+                          (format str "Do you want to merge following items?~%")
+                          (iter (for (entry path) in checked)
+                                (format str "~%~{~A / ~}~A" path (entry-name entry)))))
       (return-from cb-merge))
     ;; delete entries
     (labels ((delete-checked (model parent)
@@ -285,7 +285,6 @@
   (labels ((parse-entry (elem data parent-iter)
              (let ((type (intern (tag-get-attr elem :|type|) 'keyword))
                    (iter (gtk-tree-store-append data parent-iter)))
-               (format t "in PARSE-ENTRY ~S~%" elem)
                (update-row data
                            iter
                            (load-entry type elem))
@@ -293,7 +292,6 @@
                  (iter (for ch in (tag-children elem))
                        (parse ch data iter)))))
            (parse (elem data parent-iter)
-             (format t "in PARSE ~S~%" elem)
              (when (is-tag elem)
                (cond
                  ;; toplevel
